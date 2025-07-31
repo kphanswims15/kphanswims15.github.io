@@ -73,42 +73,47 @@ function drawOverview(data) {
 function drawDetailScene(data, industry) {
     svg.selectAll("*").remove();  // clear the SVG
     const selected = data.find(d => d.Industry === industry);
-
-  const y = d3.scaleLinear()
-    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
-    .range([height - margin.bottom, margin.top]);
-
-  const x = d3.scaleBand()
-    .domain(["Men", "Women"])
-    .range([margin.left, width - margin.right])
-    .padding(0.5);
-
-  svg.append("g")
-    .attr("transform", `translate(0, ${height - margin.bottom})`)
-    .call(d3.axisBottom(x));
-
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
-
-  svg.selectAll(".bar")
-    .data([
-      { group: "Men", value: selected.Male_Median },
-      { group: "Women", value: selected.Female_Median }
-    ])
-    .enter()
-    .append("rect")
-    .attr("class", "bar")
-    .attr("x", d => x(d.group))
-    .attr("y", d => y(d.value))
-    .attr("width", x.bandwidth())
-    .attr("height", d => y(0) - y(d.value))
-    .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
-
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", margin.top / 2)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "18px")
-    .text(`${industry}: Weekly Earnings Comparison`);
+  
+    if (!selected) {
+      console.error("Industry not found:", industry);
+      return;
+    }
+  
+    const y = d3.scaleLinear()
+      .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
+      .range([height - margin.bottom, margin.top]);
+  
+    const x = d3.scaleBand()
+      .domain(["Men", "Women"])
+      .range([margin.left, width - margin.right])
+      .padding(0.5);
+  
+    svg.append("g")
+      .attr("transform", `translate(0, ${height - margin.bottom})`)
+      .call(d3.axisBottom(x));
+  
+    svg.append("g")
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y));
+  
+    svg.selectAll(".bar")
+      .data([
+        { group: "Men", value: selected.Male_Median },
+        { group: "Women", value: selected.Female_Median }
+      ])
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", d => x(d.group))
+      .attr("y", d => y(d.value))
+      .attr("width", x.bandwidth())
+      .attr("height", d => y(0) - y(d.value))
+      .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
+  
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", margin.top / 2)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "18px")
+      .text(`${industry}: Weekly Earnings Comparison`);
 }
