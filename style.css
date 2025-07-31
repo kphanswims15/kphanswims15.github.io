@@ -5,8 +5,10 @@ body {
   }
   
   #container {
-    margin: auto;
-    width: 900px;
+    width: 100%;
+    display: flex;
+    justify-content: center;  /* ← centers horizontally */
+    align-items: center;
   }
   
   .bar {
