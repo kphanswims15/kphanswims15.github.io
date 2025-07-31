@@ -1,3 +1,15 @@
+const svg = d3.select("#chart");
+const width = +svg.attr("width");
+const height = +svg.attr("height");
+
+const margin = { top: 60, right: 60, bottom: 140, left: 100 };
+const chartWidth = width - margin.left - margin.right;
+const chartHeight = height - margin.top - margin.bottom;
+
+const state = {
+    selectedIndustry: null;
+};
+
 function drawOverview(data) {
     // Clear existing content
     svg.selectAll("*").remove();
@@ -66,4 +78,13 @@ function drawOverview(data) {
       .attr("font-size", "24px")
       .text("Gender Pay Gap by Industry");
   }
+
+function drawDetailScene(data, industry) {
+    svg.selectAll("*").remove();
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${marigin.top})`);
+
+    const selected 
+}
   
