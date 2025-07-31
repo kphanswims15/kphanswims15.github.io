@@ -1,7 +1,12 @@
 const svg = d3.select("svg");
 const width = +svg.attr("width");
 const height = +svg.attr("height");
-const margin = { top: 50, right: 40, bottom: 100, left: 100 };
+const margin = { top: 50, right: 50, bottom: 120, left: 100 };
+
+const x = d3.scaleBand()
+  .domain(data.map(d => d.Industry))
+  .range([margin.left, width - margin.right])
+  .padding(0.2);
 
 const state = {
   selectedIndustry: null
