@@ -103,19 +103,23 @@ function drawDetailScene(data, industry) {
       .call(d3.axisLeft(y));
   
     // Bars
-    svg.selectAll(".bar")
-      .data([
-        { group: "Men", value: selected.Male_Median },
-        { group: "Women", value: selected.Female_Median }
-      ])
-      .enter()
-      .append("rect")
-      .attr("class", "bar")
-      .attr("x", d => x(d.group))
-      .attr("y", d => y(d.value))
-      .attr("width", x.bandwidth())
-      .attr("height", d => y(0) - y(d.value))
-      .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
+    const color = d3.scaleOrdinal()
+  .domain(["Men", "Women"])
+  .range(["steelblue", "pink"]);
+
+svg.selectAll(".bar")
+  .data([
+    { group: "Men", value: selected.Male_Median },
+    { group: "Women", value: selected.Female_Median }
+  ])
+  .enter()
+  .append("rect")
+  .attr("class", "bar")
+  .attr("x", d => x(d.group))
+  .attr("y", d => y(d.value))
+  .attr("width", x.bandwidth())
+  .attr("height", d => y(0) - y(d.value))
+  .attr("fill", d => color(d.group.trim()));
   
     // Title
     svg.append("text")
