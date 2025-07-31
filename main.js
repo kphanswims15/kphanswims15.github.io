@@ -34,107 +34,110 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
 });
 
 function drawOverview(data) {
-  g.selectAll("*").remove();
-
-  const x = d3.scaleBand()
-    .domain(data.map(d => d.Industry))
-    .range([0, chartWidth])
-    .padding(0.2);
-
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.Gap_Percent)])
-    .nice()
-    .range([chartHeight, 0]);
-
-  // X Axis
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "rotate(-30)")
-    .style("text-anchor", "end")
-    .attr("dx", "-0.8em")
-    .attr("dy", "0.15em");
-
-  // Y Axis
-  g.append("g").call(d3.axisLeft(y));
-
-  // Bars
-  g.selectAll(".bar")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("class", "bar")
-    .attr("x", d => x(d.Industry))
-    .attr("y", d => y(d.Gap_Percent))
-    .attr("width", x.bandwidth())
-    .attr("height", d => y(0) - y(d.Gap_Percent))
-    .attr("fill", "steelblue")
-    .on("click", function(event, d) {
-      state.selectedIndustry = d.Industry;
-      d3.select("#backButton").style("display", "inline");
-      drawDetailScene(data, d.Industry);
-    });
-
-  // Annotation (Highest gap)
-  const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
-  g.append("text")
-    .attr("class", "annotation")
-    .attr("x", x(topGap.Industry) + x.bandwidth() / 2)
-    .attr("y", y(topGap.Gap_Percent) - 10)
-    .attr("text-anchor", "middle")
-    .attr("fill", "red")
-    .style("font-size", "12px")
-    .text("Highest gap");
-}
-
-function drawDetailScene(data, industry) {
-  g.selectAll("*").remove();
-
-  const selected = data.find(d => d.Industry.trim() === industry.trim());
-  if (!selected) {
-    console.error("Industry not found:", industry);
-    return;
+    svg.selectAll("*").remove();  // clear entire SVG
+  
+    const g = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+    const x = d3.scaleBand()
+      .domain(data.map(d => d.Industry))
+      .range([0, chartWidth])
+      .padding(0.2);
+  
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.Gap_Percent)])
+      .nice()
+      .range([chartHeight, 0]);
+  
+    // Axes
+    g.append("g")
+      .attr("transform", `translate(0, ${chartHeight})`)
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("transform", "rotate(-30)")
+      .style("text-anchor", "end")
+      .attr("dx", "-0.8em")
+      .attr("dy", "0.15em");
+  
+    g.append("g").call(d3.axisLeft(y));
+  
+    // Bars
+    g.selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", d => x(d.Industry))
+      .attr("y", d => y(d.Gap_Percent))
+      .attr("width", x.bandwidth())
+      .attr("height", d => y(0) - y(d.Gap_Percent))
+      .attr("fill", "steelblue")
+      .on("click", function(event, d) {
+        state.selectedIndustry = d.Industry;
+        d3.select("#backButton").style("display", "inline");
+        drawDetailScene(data, d.Industry);
+      });
+  
+    // Annotation
+    const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
+    g.append("text")
+      .attr("class", "annotation")
+      .attr("x", x(topGap.Industry) + x.bandwidth() / 2)
+      .attr("y", y(topGap.Gap_Percent) - 10)
+      .attr("text-anchor", "middle")
+      .attr("fill", "red")
+      .style("font-size", "12px")
+      .text("Highest gap");
   }
 
-  const y = d3.scaleLinear()
-    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
-    .range([chartHeight, 0]);
-
-  const x = d3.scaleBand()
-    .domain(["Men", "Women"])
-    .range([0, chartWidth])
-    .padding(0.4);
-
-  // Axes
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x));
-
-  g.append("g").call(d3.axisLeft(y));
-
-  // Bars
-  const genderData = [
-    { group: "Men", value: selected.Male_Median },
-    { group: "Women", value: selected.Female_Median }
-  ];
-
-  g.selectAll(".detailBar")
-    .data(genderData)
-    .enter()
-    .append("rect")
-    .attr("class", "detailBar")
-    .attr("x", d => x(d.group))
-    .attr("y", d => y(d.value))
-    .attr("width", x.bandwidth())
-    .attr("height", d => y(0) - y(d.value))
-    .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
-
-  // Title
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", 30)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "24px")
-    .text(`${industry}: Weekly Earnings Comparison`);
-}
+  function drawDetailScene(data, industry) {
+    svg.selectAll("*").remove();
+  
+    const g = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+    const selected = data.find(d => d.Industry.trim() === industry.trim());
+    if (!selected) {
+      console.error("Industry not found:", industry);
+      return;
+    }
+  
+    const y = d3.scaleLinear()
+      .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
+      .range([chartHeight, 0]);
+  
+    const x = d3.scaleBand()
+      .domain(["Men", "Women"])
+      .range([0, chartWidth])
+      .padding(0.4);
+  
+    g.append("g")
+      .attr("transform", `translate(0, ${chartHeight})`)
+      .call(d3.axisBottom(x));
+  
+    g.append("g").call(d3.axisLeft(y));
+  
+    const genderData = [
+      { group: "Men", value: selected.Male_Median },
+      { group: "Women", value: selected.Female_Median }
+    ];
+  
+    g.selectAll(".detailBar")
+      .data(genderData)
+      .enter()
+      .append("rect")
+      .attr("class", "detailBar")
+      .attr("x", d => x(d.group))
+      .attr("y", d => y(d.value))
+      .attr("width", x.bandwidth())
+      .attr("height", d => y(0) - y(d.value))
+      .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
+  
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "24px")
+      .text(`${industry}: Weekly Earnings Comparison`);
+  }
+  
