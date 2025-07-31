@@ -12,6 +12,10 @@ body {
   .bar {
     cursor: pointer;
   }
+
+  .detailBar {
+    cursor: pointer;
+  }
   
   .bar:hover {
     fill: darkorange;
