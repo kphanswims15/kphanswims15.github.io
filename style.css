@@ -1,37 +1,28 @@
 body {
+    margin: 0;
+    padding: 0;
     font-family: sans-serif;
     background-color: #f9f9f9;
     text-align: center;
   }
   
+  h1 {
+    margin-top: 20px;
+  }
+  
   #chart-container {
     width: 100%;
-    overflow-x: auto; /* in case it's wide */
     display: flex;
-    justify-content: center; /* centers the SVG */
-    padding-top: 20px;
+    justify-content: center;
+    align-items: center;
   }
   
   #chart {
-    background: white;
+    background-color: white;
     display: block;
   }
   
-  .bar {
+  .bar, .detailBar {
     cursor: pointer;
-  }
-
-  .detailBar {
-    cursor: pointer;
-  }
-  
-  .bar:hover {
-    fill: darkorange;
-  }
-  
-  .annotation {
-    font-size: 14px;
-    fill: red;
-    font-weight: bold;
   }
   
