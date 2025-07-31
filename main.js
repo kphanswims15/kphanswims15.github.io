@@ -56,6 +56,7 @@ function drawOverview(data) {
     .attr("width", x.bandwidth())
     .attr("height", d => y(0) - y(d.Gap_Percent))
     .on("click", function(event, d) {
+        console.log("Clicked:", d.Industry);
         state.selectedIndustry = d.Industry;
         d3.select("#backButton").style("display", "inline");
         drawDetailScene(data, d.Industry);
@@ -71,13 +72,17 @@ function drawOverview(data) {
 }
 
 function drawDetailScene(data, industry) {
-    svg.selectAll("*").remove();  // clear the SVG
-    const selected = data.find(d => d.Industry === industry);
+    svg.selectAll("*").remove();
+  
+    // Trim whitespace just in case
+    const selected = data.find(d => d.Industry.trim() === industry.trim());
   
     if (!selected) {
-      console.error("Industry not found:", industry);
+      console.error("No matching industry found:", industry);
       return;
     }
+  
+    console.log("Rendering detail chart for:", selected);
   
     const y = d3.scaleLinear()
       .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
@@ -86,16 +91,18 @@ function drawDetailScene(data, industry) {
     const x = d3.scaleBand()
       .domain(["Men", "Women"])
       .range([margin.left, width - margin.right])
-      .padding(0.5);
+      .padding(0.4);
   
+    // Axes
     svg.append("g")
       .attr("transform", `translate(0, ${height - margin.bottom})`)
       .call(d3.axisBottom(x));
   
     svg.append("g")
-      .attr("transform", `translate(${margin.left},0)`)
+      .attr("transform", `translate(${margin.left}, 0)`)
       .call(d3.axisLeft(y));
   
+    // Bars
     svg.selectAll(".bar")
       .data([
         { group: "Men", value: selected.Male_Median },
@@ -110,10 +117,11 @@ function drawDetailScene(data, industry) {
       .attr("height", d => y(0) - y(d.value))
       .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
   
+    // Title
     svg.append("text")
       .attr("x", width / 2)
       .attr("y", margin.top / 2)
       .attr("text-anchor", "middle")
       .attr("font-size", "18px")
-      .text(`${industry}: Weekly Earnings Comparison`);
-}
+      .text(`${industry}: Weekly Earnings`);
+  }  
