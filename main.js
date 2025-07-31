@@ -1,44 +1,12 @@
-const svg = d3.select("#chart");
-const width = +svg.attr("width");
-const height = +svg.attr("height");
-const margin = { top: 60, right: 60, bottom: 140, left: 100 };
-const chartWidth = width - margin.left - margin.right;
-const chartHeight = height - margin.top - margin.bottom;
-
-// Group for drawing content inside margins
-const g = svg.append("g")
-  .attr("transform", `translate(${margin.left},${margin.top})`);
-
-const state = {
-  selectedIndustry: null
-};
-
-d3.csv("cleaned_gender_pay_gap.csv").then(data => {
-  data.forEach(d => {
-    d.Male_Median = +d.Male_Median;
-    d.Female_Median = +d.Female_Median;
-    d.Gap_Percent = +d.Gap_Percent;
-  });
-
-  // Optional sort by descending gap
-  data.sort((a, b) => d3.descending(a.Gap_Percent, b.Gap_Percent));
-
-  drawOverview(data);
-
-  d3.select("#backButton").on("click", () => {
-    state.selectedIndustry = null;
-    d3.select("#backButton").style("display", "none");
-    g.selectAll("*").remove();
-    drawOverview(data);
-  });
-});
-
 function drawOverview(data) {
-    svg.selectAll("*").remove();  // clear entire SVG
+    // Clear existing content
+    svg.selectAll("*").remove();
   
+    // Create a group with margin transform
     const g = svg.append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${margin.left}, ${margin.top})`);
   
+    // Set up x and y scales
     const x = d3.scaleBand()
       .domain(data.map(d => d.Industry))
       .range([0, chartWidth])
@@ -49,7 +17,7 @@ function drawOverview(data) {
       .nice()
       .range([chartHeight, 0]);
   
-    // Axes
+    // Draw X axis with rotated labels
     g.append("g")
       .attr("transform", `translate(0, ${chartHeight})`)
       .call(d3.axisBottom(x))
@@ -59,9 +27,10 @@ function drawOverview(data) {
       .attr("dx", "-0.8em")
       .attr("dy", "0.15em");
   
+    // Draw Y axis
     g.append("g").call(d3.axisLeft(y));
   
-    // Bars
+    // Draw bars
     g.selectAll(".bar")
       .data(data)
       .enter()
@@ -78,7 +47,7 @@ function drawOverview(data) {
         drawDetailScene(data, d.Industry);
       });
   
-    // Annotation
+    // Optional annotation for largest gap
     const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
     g.append("text")
       .attr("class", "annotation")
@@ -88,56 +57,13 @@ function drawOverview(data) {
       .attr("fill", "red")
       .style("font-size", "12px")
       .text("Highest gap");
-  }
-
-  function drawDetailScene(data, industry) {
-    svg.selectAll("*").remove();
   
-    const g = svg.append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
-  
-    const selected = data.find(d => d.Industry.trim() === industry.trim());
-    if (!selected) {
-      console.error("Industry not found:", industry);
-      return;
-    }
-  
-    const y = d3.scaleLinear()
-      .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
-      .range([chartHeight, 0]);
-  
-    const x = d3.scaleBand()
-      .domain(["Men", "Women"])
-      .range([0, chartWidth])
-      .padding(0.4);
-  
-    g.append("g")
-      .attr("transform", `translate(0, ${chartHeight})`)
-      .call(d3.axisBottom(x));
-  
-    g.append("g").call(d3.axisLeft(y));
-  
-    const genderData = [
-      { group: "Men", value: selected.Male_Median },
-      { group: "Women", value: selected.Female_Median }
-    ];
-  
-    g.selectAll(".detailBar")
-      .data(genderData)
-      .enter()
-      .append("rect")
-      .attr("class", "detailBar")
-      .attr("x", d => x(d.group))
-      .attr("y", d => y(d.value))
-      .attr("width", x.bandwidth())
-      .attr("height", d => y(0) - y(d.value))
-      .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
-  
+    // Chart title
     svg.append("text")
       .attr("x", width / 2)
       .attr("y", 30)
       .attr("text-anchor", "middle")
       .attr("font-size", "24px")
-      .text(`${industry}: Weekly Earnings Comparison`);
+      .text("Gender Pay Gap by Industry");
   }
   
