@@ -55,11 +55,11 @@ function drawOverview(data) {
     .attr("y", d => y(d.Gap_Percent))
     .attr("width", x.bandwidth())
     .attr("height", d => y(0) - y(d.Gap_Percent))
-    .on("click", d => {
-      state.selectedIndustry = d.Industry;
-      d3.select("#backButton").style("display", "inline");
-      drawDetailScene(data, d.Industry);
-    });
+    .on("click", function(event, d) {
+        state.selectedIndustry = d.Industry;
+        d3.select("#backButton").style("display", "inline");
+        drawDetailScene(data, d.Industry);
+      });
 
   // Optional: annotation
   const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
@@ -71,9 +71,8 @@ function drawOverview(data) {
 }
 
 function drawDetailScene(data, industry) {
-  svg.selectAll("*").remove();
-
-  const selected = data.find(d => d.Industry === industry);
+    svg.selectAll("*").remove();  // clear the SVG
+    const selected = data.find(d => d.Industry === industry);
 
   const y = d3.scaleLinear()
     .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
