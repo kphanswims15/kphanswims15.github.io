@@ -1,0 +1,25 @@
+body {
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+#container {
+    margin: auto;
+    width: 900px;
+}
+
+.bar {
+    fill: steelblue;
+    cursor: pointer;
+}
+
+.bar:hover {
+    fill: darkorange;
+}
+
+.annotation {
+    font-size: 14px;
+    fill: red;
+    font-weight: bold;
+}
