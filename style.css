@@ -4,11 +4,17 @@ body {
     text-align: center;
   }
   
-  #container {
+  #chart-container {
     width: 100%;
+    overflow-x: auto; /* in case it's wide */
     display: flex;
-    justify-content: center;  /* ← centers horizontally */
-    align-items: center;
+    justify-content: center; /* centers the SVG */
+    padding-top: 20px;
+  }
+  
+  #chart {
+    background: white;
+    display: block;
   }
   
   .bar {
