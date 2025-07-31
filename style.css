@@ -2,24 +2,25 @@ body {
     font-family: sans-serif;
     background-color: #f9f9f9;
     text-align: center;
-}
-
-#container {
+  }
+  
+  #container {
     margin: auto;
     width: 900px;
-}
-
-.bar {
+  }
+  
+  .bar {
     fill: steelblue;
     cursor: pointer;
-}
-
-.bar:hover {
+  }
+  
+  .bar:hover {
     fill: darkorange;
-}
-
-.annotation {
+  }
+  
+  .annotation {
     font-size: 14px;
     fill: red;
     font-weight: bold;
-}
+  }
+  
