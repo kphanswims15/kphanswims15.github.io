@@ -64,6 +64,7 @@ function drawOverview(data) {
     .on("click", function(event, d) {
       state.selectedIndustry = d.Industry;
       d3.select("#backButton").style("display", "inline");
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // scroll to top
       drawDetailScene(data, d.Industry);
     });
 
@@ -86,7 +87,7 @@ function drawOverview(data) {
 
 function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
-  svg.attr("height", 500); // Reset to smaller height for detail chart
+  svg.attr("height", 500);
 
   const margin = { top: 60, right: 40, bottom: 60, left: 60 };
   const chartWidth = width - margin.left - margin.right;
