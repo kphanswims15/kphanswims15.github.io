@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   padding: 0;
@@ -25,15 +26,14 @@ svg {
   margin: 0 auto;
 }
 
-.bar, .detailBar {
+.bar, .detailBar, .compareBar {
   cursor: pointer;
 }
 
-#backButton {
+#backButton, #compareButton {
   margin: 10px;
   padding: 8px 16px;
   font-size: 14px;
-  display: none;
 }
 
 .annotation {
