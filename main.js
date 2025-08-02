@@ -22,6 +22,7 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
   d3.select("#backButton").on("click", () => {
     state.selectedIndustry = null;
     d3.select("#backButton").style("display", "none");
+    window.scrollTo({ top: 0, behavior: 'auto' }); // instant scroll back
     drawOverview(data);
   });
 });
@@ -64,7 +65,7 @@ function drawOverview(data) {
     .on("click", function(event, d) {
       state.selectedIndustry = d.Industry;
       d3.select("#backButton").style("display", "inline");
-      window.scrollTo({ top: 0, behavior: 'smooth' }); // scroll to top
+      window.scrollTo({ top: 0, behavior: 'auto' }); // instant scroll on detail
       drawDetailScene(data, d.Industry);
     });
 
