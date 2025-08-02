@@ -1,6 +1,6 @@
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
-let height = 800;
+let height = 1000;
 
 const margin = { top: 60, right: 40, bottom: 40, left: 300 };
 const state = {
@@ -14,7 +14,7 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     d.Gap_Percent = +d.Gap_Percent;
   });
 
-  height = data.length * 36 + margin.top + margin.bottom; // increased per-bar space
+  height = data.length * 36 + margin.top + margin.bottom;
   svg.attr("height", height);
 
   drawOverview(data);
@@ -38,7 +38,7 @@ function drawOverview(data) {
   const y = d3.scaleBand()
     .domain(data.map(d => d.Industry))
     .range([0, chartHeight])
-    .padding(0.3);  // more padding between bars
+    .padding(0.3);
 
   const x = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.Gap_Percent)])
@@ -46,6 +46,7 @@ function drawOverview(data) {
     .range([0, chartWidth]);
 
   g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
+
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
@@ -85,13 +86,14 @@ function drawOverview(data) {
 
 function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
+  svg.attr("height", 500); // Reset to smaller height for detail chart
 
-  const detailMargin = { top: 60, right: 40, bottom: 60, left: 60 };
-  const detailWidth = +svg.attr("width") - detailMargin.left - detailMargin.right;
-  const detailHeight = 400;
+  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = 400;
 
   const g = svg.append("g")
-    .attr("transform", `translate(${detailMargin.left}, ${detailMargin.top})`);
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
   if (!selected) {
@@ -101,20 +103,19 @@ function drawDetailScene(data, industry) {
 
   const x = d3.scaleBand()
     .domain(["Men", "Women"])
-    .range([0, detailWidth])
+    .range([0, chartWidth])
     .padding(0.4);
 
   const y = d3.scaleLinear()
     .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
     .nice()
-    .range([detailHeight, 0]);
+    .range([chartHeight, 0]);
 
   g.append("g")
-    .attr("transform", `translate(0, ${detailHeight})`)
+    .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
 
-  g.append("g")
-    .call(d3.axisLeft(y));
+  g.append("g").call(d3.axisLeft(y));
 
   const genderData = [
     { group: "Men", value: selected.Male_Median },
@@ -129,11 +130,11 @@ function drawDetailScene(data, industry) {
     .attr("x", d => x(d.group))
     .attr("y", d => y(d.value))
     .attr("width", x.bandwidth())
-    .attr("height", d => detailHeight - y(d.value))
+    .attr("height", d => chartHeight - y(d.value))
     .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
 
   svg.append("text")
-    .attr("x", +svg.attr("width") / 2)
+    .attr("x", width / 2)
     .attr("y", 30)
     .attr("text-anchor", "middle")
     .attr("font-size", "24px")
