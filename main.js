@@ -113,10 +113,7 @@ function drawDetailScene(data, industry) {
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
-  if (!selected) {
-    console.error("Industry not found:", industry);
-    return;
-  }
+  if (!selected) return;
 
   const x = d3.scaleBand()
     .domain(["Men", "Women"])
