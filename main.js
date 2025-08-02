@@ -42,14 +42,15 @@ function drawOverview(data) {
     .nice()
     .range([chartHeight, 0]);
 
-  g.append("g")
+    g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x))
     .selectAll("text")
-    .attr("transform", "rotate(-30)")
-    .style("text-anchor", "end")
-    .attr("dx", "-0.8em")
-    .attr("dy", "0.15em");
+    .style("text-anchor", "middle")
+    .attr("y", 0)
+    .attr("x", 0)
+    .attr("dy", ".35em")
+    .call(wrap, x.bandwidth());  
 
   g.append("g").call(d3.axisLeft(y));
 
@@ -136,4 +137,37 @@ function drawDetailScene(data, industry) {
     .attr("text-anchor", "middle")
     .attr("font-size", "24px")
     .text(`${industry}: Weekly Earnings Comparison`);
+}
+
+function wrap(text, width) {
+  text.each(function () {
+    const text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          lineHeight = 1.1; // ems
+    let word,
+        line = [],
+        lineNumber = 0,
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy") || 0),
+        tspan = text.text(null)
+                    .append("tspan")
+                    .attr("x", 0)
+                    .attr("y", y)
+                    .attr("dy", dy + "em");
+
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan")
+                    .attr("x", 0)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
+      }
+    }
+  });
 }
