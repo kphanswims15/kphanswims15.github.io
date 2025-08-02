@@ -1,10 +1,8 @@
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
-const height = +svg.attr("height");
 
 const margin = { top: 60, right: 40, bottom: 40, left: 300 };
-const chartWidth = width - margin.left - margin.right;
-const chartHeight = height - margin.top - margin.bottom;
+let chartWidth = width - margin.left - margin.right;
 
 const state = {
   selectedIndustry: null
@@ -17,7 +15,6 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     d.Gap_Percent = +d.Gap_Percent;
   });
 
-  // Filter out invalid rows
   data = data.filter(d => !isNaN(d.Gap_Percent));
 
   drawOverview(data);
@@ -30,6 +27,12 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
 });
 
 function drawOverview(data) {
+  // Dynamically adjust SVG height based on number of rows
+  const barHeight = 30;
+  const fullHeight = data.length * barHeight + margin.top + margin.bottom;
+  svg.attr("height", fullHeight);
+  const chartHeight = fullHeight - margin.top - margin.bottom;
+
   svg.selectAll("*").remove();
 
   const g = svg.append("g")
@@ -66,7 +69,6 @@ function drawOverview(data) {
       drawDetailScene(data, d.Industry);
     });
 
-  // Add annotation for highest gap
   const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
   g.append("text")
     .attr("class", "annotation")
@@ -86,6 +88,9 @@ function drawOverview(data) {
 
 function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
+
+  const height = +svg.attr("height");
+  const chartHeight = height - margin.top - margin.bottom;
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
