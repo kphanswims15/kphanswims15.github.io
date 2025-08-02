@@ -1,4 +1,3 @@
-
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
@@ -67,8 +66,6 @@ function drawOverview(data) {
     .attr("fill", "steelblue")
     .on("click", function(event, d) {
       state.selectedIndustry = d.Industry;
-      d3.select("#backButton").style("display", "inline");
-      d3.select("#compareButton").style("display", "inline");
       window.scrollTo({ top: 0, behavior: 'auto' });
       drawDetailScene(data, d.Industry);
     });
@@ -93,6 +90,11 @@ function drawOverview(data) {
 function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
   svg.attr("height", 500);
+
+  d3.select("#backButton").style("display", "inline");
+  d3.select("#compareButton")
+    .style("display", "inline")
+    .on("click", () => drawComparisonScene(data, industry));
 
   const margin = { top: 60, right: 40, bottom: 60, left: 60 };
   const chartWidth = width - margin.left - margin.right;
@@ -145,12 +147,6 @@ function drawDetailScene(data, industry) {
     .attr("text-anchor", "middle")
     .attr("font-size", "24px")
     .text(`${industry}: Weekly Earnings Comparison`);
-
-  d3.select("#compareButton")
-    .style("display", "inline")
-    .on("click", () => {
-      drawComparisonScene(data, industry);
-    });
 }
 
 function drawComparisonScene(data, industry) {
