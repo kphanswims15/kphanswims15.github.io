@@ -10,7 +10,6 @@ const state = {
   selectedIndustry: null
 };
 
-// Load CSV and initialize
 d3.csv("cleaned_gender_pay_gap.csv").then(data => {
   data.forEach(d => {
     d.Male_Median = +d.Male_Median;
