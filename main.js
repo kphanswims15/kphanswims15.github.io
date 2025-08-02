@@ -8,7 +8,7 @@ const chartHeight = height - margin.top - margin.bottom;
 
 const state = {
   selectedIndustry: null
-}
+};
 
 d3.csv("cleaned_gender_pay_gap.csv").then(data => {
   data.forEach(d => {
