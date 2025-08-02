@@ -2,7 +2,7 @@ const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
 
-const margin = { top: 60, right: 40, bottom: 40, left: 100 };
+const margin = { top: 60, right: 40, bottom: 40, left: 300 };
 const state = {
   selectedIndustry: null,
   scene: "overview"
@@ -57,6 +57,7 @@ function drawOverview(data) {
     .range([0, chartWidth]);
 
   g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
+
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
@@ -71,7 +72,7 @@ function drawOverview(data) {
     .attr("height", y.bandwidth())
     .attr("width", d => x(d.Gap_Percent))
     .attr("fill", "steelblue")
-    .on("click", function(event, d) {
+    .on("click", function (event, d) {
       state.selectedIndustry = d.Industry;
       state.scene = "detail";
       d3.select("#backButton").style("display", "inline");
@@ -166,51 +167,88 @@ function drawComparisonScene(data, industry) {
   svg.selectAll("*").remove();
   svg.attr("height", 500);
 
-  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const selected = data.find(d => d.Industry.trim() === industry.trim());
+  const nationalAvgMale = d3.mean(data, d => d.Male_Median);
+  const nationalAvgFemale = d3.mean(data, d => d.Female_Median);
+
+  const gapData = [
+    {
+      label: "Your Industry",
+      male: selected.Male_Median,
+      female: selected.Female_Median
+    },
+    {
+      label: "National Average",
+      male: nationalAvgMale,
+      female: nationalAvgFemale
+    }
+  ];
+
+  const margin = { top: 60, right: 40, bottom: 60, left: 100 };
   const chartWidth = width - margin.left - margin.right;
-  const chartHeight = 400;
+  const chartHeight = 300;
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  const selected = data.find(d => d.Industry.trim() === industry.trim());
-  const averageGap = d3.mean(data, d => d.Gap_Percent);
+  const x = d3.scaleLinear()
+    .domain([
+      0,
+      d3.max(gapData, d => Math.max(d.male, d.female))
+    ])
+    .nice()
+    .range([0, chartWidth]);
 
-  const gapData = [
-    { label: industry, value: selected.Gap_Percent },
-    { label: "National Avg", value: averageGap }
-  ];
-
-  const x = d3.scaleBand()
+  const y = d3.scaleBand()
     .domain(gapData.map(d => d.label))
-    .range([0, chartWidth])
-    .padding(0.4);
-
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(gapData, d => d.value)]).nice()
-    .range([chartHeight, 0]);
+    .range([0, chartHeight])
+    .padding(0.5);
 
   g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
+    .attr("transform", `translate(0,0)`)
+    .call(d3.axisLeft(y));
+
+  g.append("g")
+    .attr("transform", `translate(0,${chartHeight})`)
     .call(d3.axisBottom(x));
 
-  g.append("g").call(d3.axisLeft(y));
-
-  g.selectAll(".compareBar")
+  // Dumbbell lines
+  g.selectAll(".line")
     .data(gapData)
     .enter()
-    .append("rect")
-    .attr("class", "compareBar")
-    .attr("x", d => x(d.label))
-    .attr("y", d => y(d.value))
-    .attr("width", x.bandwidth())
-    .attr("height", d => chartHeight - y(d.value))
-    .attr("fill", (d, i) => i === 0 ? "orange" : "gray");
+    .append("line")
+    .attr("x1", d => x(d.male))
+    .attr("x2", d => x(d.female))
+    .attr("y1", d => y(d.label) + y.bandwidth() / 2)
+    .attr("y2", d => y(d.label) + y.bandwidth() / 2)
+    .attr("stroke", "#999")
+    .attr("stroke-width", 2);
 
+  // Male circles
+  g.selectAll(".maleDot")
+    .data(gapData)
+    .enter()
+    .append("circle")
+    .attr("cx", d => x(d.male))
+    .attr("cy", d => y(d.label) + y.bandwidth() / 2)
+    .attr("r", 6)
+    .attr("fill", "steelblue");
+
+  // Female circles
+  g.selectAll(".femaleDot")
+    .data(gapData)
+    .enter()
+    .append("circle")
+    .attr("cx", d => x(d.female))
+    .attr("cy", d => y(d.label) + y.bandwidth() / 2)
+    .attr("r", 6)
+    .attr("fill", "pink");
+
+  // Add axis labels
   svg.append("text")
     .attr("x", width / 2)
     .attr("y", 30)
     .attr("text-anchor", "middle")
     .attr("font-size", "22px")
-    .text(`${industry}: vs. National Gender Pay Gap Average`);
+    .text(`${industry}: Weekly Pay vs. National Average`);
 }
