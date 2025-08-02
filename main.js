@@ -14,20 +14,22 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     d.Gap_Percent = +d.Gap_Percent;
   });
 
-  height = data.length * 36 + margin.top + margin.bottom;
-  svg.attr("height", height);
-
   drawOverview(data);
 
   d3.select("#backButton").on("click", () => {
     state.selectedIndustry = null;
     d3.select("#backButton").style("display", "none");
-    window.scrollTo({ top: 0, behavior: 'auto' }); // instant scroll back
+    window.scrollTo({ top: 0, behavior: 'auto' });
     drawOverview(data);
   });
 });
 
 function drawOverview(data) {
+  // ✅ Reset dynamic height based on number of industries
+  const newHeight = data.length * 36 + margin.top + margin.bottom;
+  svg.attr("height", newHeight);
+  height = newHeight;
+
   svg.selectAll("*").remove();
 
   const chartHeight = height - margin.top - margin.bottom;
@@ -65,7 +67,7 @@ function drawOverview(data) {
     .on("click", function(event, d) {
       state.selectedIndustry = d.Industry;
       d3.select("#backButton").style("display", "inline");
-      window.scrollTo({ top: 0, behavior: 'auto' }); // instant scroll on detail
+      window.scrollTo({ top: 0, behavior: 'auto' });
       drawDetailScene(data, d.Industry);
     });
 
