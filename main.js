@@ -14,7 +14,7 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     d.Gap_Percent = +d.Gap_Percent;
   });
 
-  height = data.length * 30 + margin.top + margin.bottom;
+  height = data.length * 36 + margin.top + margin.bottom; // increased per-bar space
   svg.attr("height", height);
 
   drawOverview(data);
@@ -38,14 +38,14 @@ function drawOverview(data) {
   const y = d3.scaleBand()
     .domain(data.map(d => d.Industry))
     .range([0, chartHeight])
-    .padding(0.2);
+    .padding(0.3);  // more padding between bars
 
   const x = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.Gap_Percent)])
     .nice()
     .range([0, chartWidth]);
 
-  g.append("g").call(d3.axisLeft(y));
+  g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
