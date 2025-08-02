@@ -4,37 +4,33 @@ body {
   font-family: sans-serif;
   background-color: #f9f9f9;
   text-align: center;
+  overflow-y: scroll;
 }
 
-h1, h2 {
+h2 {
   margin-top: 20px;
 }
 
 #chart-container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  box-sizing: border-box;
+  overflow-x: auto;
 }
 
-#chart {
-  background-color: white;
+svg {
   display: block;
   margin: auto;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
-.bar,
-.detailBar {
+.bar, .detailBar {
   cursor: pointer;
-  transition: fill 0.2s ease;
 }
 
-.bar:hover,
-.detailBar:hover {
-  fill: orange;
+#backButton {
+  margin: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  display: none;
 }
 
 .annotation {
