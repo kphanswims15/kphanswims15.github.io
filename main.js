@@ -21,6 +21,12 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     window.scrollTo({ top: 0, behavior: 'auto' });
     drawOverview(data);
   });
+
+  d3.select("#compareButton").on("click", () => {
+    if (state.selectedIndustry) {
+      drawComparisonScene(data, state.selectedIndustry);
+    }
+  });
 });
 
 function drawOverview(data) {
@@ -88,4 +94,115 @@ function drawOverview(data) {
     .attr("text-anchor", "middle")
     .attr("font-size", "24px")
     .text("Gender Pay Gap by Industry");
+}
+
+function drawDetailScene(data, industry) {
+  svg.selectAll("*").remove();
+  svg.attr("height", 500);
+
+  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = 400;
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+  const selected = data.find(d => d.Industry.trim() === industry.trim());
+  if (!selected) {
+    console.error("Industry not found:", industry);
+    return;
+  }
+
+  const x = d3.scaleBand()
+    .domain(["Men", "Women"])
+    .range([0, chartWidth])
+    .padding(0.4);
+
+  const y = d3.scaleLinear()
+    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
+    .nice()
+    .range([chartHeight, 0]);
+
+  g.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(d3.axisBottom(x));
+
+  g.append("g").call(d3.axisLeft(y));
+
+  const genderData = [
+    { group: "Men", value: selected.Male_Median },
+    { group: "Women", value: selected.Female_Median }
+  ];
+
+  g.selectAll(".detailBar")
+    .data(genderData)
+    .enter()
+    .append("rect")
+    .attr("class", "detailBar")
+    .attr("x", d => x(d.group))
+    .attr("y", d => y(d.value))
+    .attr("width", x.bandwidth())
+    .attr("height", d => chartHeight - y(d.value))
+    .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
+
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", 30)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "24px")
+    .text(`${industry}: Weekly Earnings Comparison`);
+}
+
+function drawComparisonScene(data, industry) {
+  svg.selectAll("*").remove();
+  svg.attr("height", 500);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+
+  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = 400;
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+  const selected = data.find(d => d.Industry.trim() === industry.trim());
+  const averageGap = d3.mean(data, d => d.Gap_Percent);
+
+  const gapData = [
+    { label: industry, value: selected.Gap_Percent },
+    { label: "National Avg", value: averageGap }
+  ];
+
+  const x = d3.scaleBand()
+    .domain(gapData.map(d => d.label))
+    .range([0, chartWidth])
+    .padding(0.4);
+
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(gapData, d => d.value)]).nice()
+    .range([chartHeight, 0]);
+
+  g.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(d3.axisBottom(x));
+
+  g.append("g").call(d3.axisLeft(y));
+
+  g.selectAll(".compareBar")
+    .data(gapData)
+    .enter()
+    .append("rect")
+    .attr("class", "compareBar")
+    .attr("x", d => x(d.label))
+    .attr("y", d => y(d.value))
+    .attr("width", x.bandwidth())
+    .attr("height", d => chartHeight - y(d.value))
+    .attr("fill", (d, i) => i === 0 ? "orange" : "gray");
+
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", 30)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "22px")
+    .text(`${industry}: vs. National Gender Pay Gap Average`);
 }
