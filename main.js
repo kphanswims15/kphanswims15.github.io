@@ -1,4 +1,3 @@
-
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
