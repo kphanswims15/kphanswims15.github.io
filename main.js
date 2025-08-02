@@ -17,6 +17,9 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
     d.Gap_Percent = +d.Gap_Percent;
   });
 
+  // Filter out invalid rows
+  data = data.filter(d => !isNaN(d.Gap_Percent));
+
   drawOverview(data);
 
   d3.select("#backButton").on("click", () => {
@@ -43,7 +46,6 @@ function drawOverview(data) {
     .range([0, chartWidth]);
 
   g.append("g").call(d3.axisLeft(y));
-
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
@@ -64,6 +66,7 @@ function drawOverview(data) {
       drawDetailScene(data, d.Industry);
     });
 
+  // Add annotation for highest gap
   const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
   g.append("text")
     .attr("class", "annotation")
