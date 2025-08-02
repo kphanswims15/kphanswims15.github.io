@@ -13,13 +13,16 @@ h2 {
 
 #chart-container {
   width: 100%;
+  display: flex;
+  justify-content: center;  /* Center SVG horizontally */
+  align-items: flex-start;  /* Align chart to top */
   overflow-x: auto;
 }
 
 svg {
   display: block;
-  margin: auto;
   background-color: white;
+  margin: 0 auto;  /* Optional fallback */
 }
 
 .bar, .detailBar {
