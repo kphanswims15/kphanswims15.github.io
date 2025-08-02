@@ -86,11 +86,12 @@ function drawOverview(data) {
 function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
 
-  const chartHeight = height - margin.top - margin.bottom;
-  const chartWidth = width - margin.left - margin.right;
+  const detailMargin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const detailWidth = +svg.attr("width") - detailMargin.left - detailMargin.right;
+  const detailHeight = 400;
 
   const g = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    .attr("transform", `translate(${detailMargin.left}, ${detailMargin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
   if (!selected) {
@@ -98,19 +99,22 @@ function drawDetailScene(data, industry) {
     return;
   }
 
-  const x = d3.scaleLinear()
-    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
-    .range([0, chartWidth]);
-
-  const y = d3.scaleBand()
+  const x = d3.scaleBand()
     .domain(["Men", "Women"])
-    .range([0, chartHeight])
+    .range([0, detailWidth])
     .padding(0.4);
 
-  g.append("g").call(d3.axisLeft(y));
+  const y = d3.scaleLinear()
+    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
+    .nice()
+    .range([detailHeight, 0]);
+
   g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
+    .attr("transform", `translate(0, ${detailHeight})`)
     .call(d3.axisBottom(x));
+
+  g.append("g")
+    .call(d3.axisLeft(y));
 
   const genderData = [
     { group: "Men", value: selected.Male_Median },
@@ -122,14 +126,14 @@ function drawDetailScene(data, industry) {
     .enter()
     .append("rect")
     .attr("class", "detailBar")
-    .attr("y", d => y(d.group))
-    .attr("x", 0)
-    .attr("height", y.bandwidth())
-    .attr("width", d => x(d.value))
+    .attr("x", d => x(d.group))
+    .attr("y", d => y(d.value))
+    .attr("width", x.bandwidth())
+    .attr("height", d => detailHeight - y(d.value))
     .attr("fill", d => d.group === "Men" ? "steelblue" : "pink");
 
   svg.append("text")
-    .attr("x", width / 2)
+    .attr("x", +svg.attr("width") / 2)
     .attr("y", 30)
     .attr("text-anchor", "middle")
     .attr("font-size", "24px")
