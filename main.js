@@ -2,7 +2,7 @@ const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
 
-const margin = { top: 60, right: 40, bottom: 40, left: 20 };
+const margin = { top: 60, right: 40, bottom: 40, left: 300 };
 const state = {
   selectedIndustry: null,
   scene: "overview"
@@ -20,12 +20,10 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
   d3.select("#backButton").on("click", () => {
     if (state.scene === "comparison") {
       state.scene = "detail";
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawDetailScene(data, state.selectedIndustry);
     } else if (state.scene === "detail") {
       state.scene = "overview";
       state.selectedIndustry = null;
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawOverview(data);
     }
   });
@@ -43,10 +41,10 @@ function drawOverview(data) {
   svg.selectAll("*").remove();
 
   const chartHeight = height - margin.top - margin.bottom;
-  const chartWidth = 600; // fixed width to center
+  const chartWidth = width - margin.left - margin.right;
 
   const g = svg.append("g")
-    .attr("transform", `translate(${(width - chartWidth) / 2}, ${margin.top})`);
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const y = d3.scaleBand()
     .domain(data.map(d => d.Industry))
@@ -56,12 +54,9 @@ function drawOverview(data) {
   const x = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.Gap_Percent)])
     .nice()
-    .range([0, chartWidth - 100]);
+    .range([0, chartWidth]);
 
-  g.append("g")
-    .call(d3.axisLeft(y).tickSize(0))
-    .selectAll("text")
-    .style("font-size", "11px");
+  g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
 
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
@@ -77,12 +72,11 @@ function drawOverview(data) {
     .attr("height", y.bandwidth())
     .attr("width", d => x(d.Gap_Percent))
     .attr("fill", "steelblue")
-    .on("click", function (event, d) {
+    .on("click", function(event, d) {
       state.selectedIndustry = d.Industry;
       state.scene = "detail";
       d3.select("#backButton").style("display", "inline");
       d3.select("#compareButton").style("display", "inline");
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawDetailScene(data, d.Industry);
     });
 
@@ -116,7 +110,10 @@ function drawDetailScene(data, industry) {
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
-  if (!selected) return;
+  if (!selected) {
+    console.error("Industry not found:", industry);
+    return;
+  }
 
   const x = d3.scaleBand()
     .domain(["Men", "Women"])
@@ -161,7 +158,6 @@ function drawDetailScene(data, industry) {
     .style("display", "inline")
     .on("click", () => {
       state.scene = "comparison";
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawComparisonScene(data, industry);
     });
 }
