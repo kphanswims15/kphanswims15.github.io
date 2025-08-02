@@ -25,7 +25,6 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
 });
 
 function drawOverview(data) {
-  // ✅ Reset dynamic height based on number of industries
   const newHeight = data.length * 36 + margin.top + margin.bottom;
   svg.attr("height", newHeight);
   height = newHeight;
