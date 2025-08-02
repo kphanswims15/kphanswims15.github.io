@@ -32,10 +32,15 @@ function drawOverview(data) {
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  const x = d3.scaleBand()
-    .domain(data.map(d => d.Industry))
-    .range([0, chartWidth])
-    .padding(0.2);
+  const x = g.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(d3.axisBottom(x));
+  
+  x.selectAll("text")
+    .style("text-anchor", "middle")
+    .attr("dx", "-0.2em")
+    .attr("dy", "0.9em")
+    .call(wrap, x.bandwidth());
 
   const y = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.Gap_Percent)])
