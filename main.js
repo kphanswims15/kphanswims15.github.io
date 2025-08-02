@@ -1,3 +1,4 @@
+
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
@@ -91,12 +92,12 @@ function drawDetailScene(data, industry) {
   svg.selectAll("*").remove();
   svg.attr("height", 500);
 
-  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
-  const chartWidth = width - margin.left - margin.right;
+  const localMargin = { top: 60, right: 40, bottom: 60, left: 60 };
+  const chartWidth = width - localMargin.left - localMargin.right;
   const chartHeight = 400;
 
   const g = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    .attr("transform", `translate(${localMargin.left}, ${localMargin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
   if (!selected) {
