@@ -20,14 +20,13 @@ d3.csv("cleaned_gender_pay_gap.csv").then(data => {
   d3.select("#backButton").on("click", () => {
     if (state.scene === "comparison") {
       state.scene = "detail";
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawDetailScene(data, state.selectedIndustry);
     } else if (state.scene === "detail") {
       state.scene = "overview";
       state.selectedIndustry = null;
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawOverview(data);
     }
+    window.scrollTo({ top: 0, behavior: "auto" });
   });
 });
 
@@ -39,7 +38,6 @@ function drawOverview(data) {
   const newHeight = data.length * 36 + margin.top + margin.bottom;
   svg.attr("height", newHeight);
   height = newHeight;
-
   svg.selectAll("*").remove();
 
   const chartHeight = height - margin.top - margin.bottom;
@@ -59,10 +57,7 @@ function drawOverview(data) {
     .range([0, chartWidth]);
 
   g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
-
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x));
+  g.append("g").attr("transform", `translate(0, ${chartHeight})`).call(d3.axisBottom(x));
 
   g.selectAll(".bar")
     .data(data)
@@ -74,13 +69,13 @@ function drawOverview(data) {
     .attr("height", y.bandwidth())
     .attr("width", d => x(d.Gap_Percent))
     .attr("fill", "steelblue")
-    .on("click", function (event, d) {
+    .on("click", (event, d) => {
       state.selectedIndustry = d.Industry;
       state.scene = "detail";
       d3.select("#backButton").style("display", "inline");
       d3.select("#compareButton").style("display", "inline");
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawDetailScene(data, d.Industry);
+      window.scrollTo({ top: 0, behavior: "auto" });
     });
 
   const topGap = data.reduce((a, b) => (a.Gap_Percent > b.Gap_Percent ? a : b));
@@ -109,26 +104,14 @@ function drawDetailScene(data, industry) {
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = 400;
 
-  const g = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
+  const g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
   const selected = data.find(d => d.Industry.trim() === industry.trim());
   if (!selected) return;
 
-  const x = d3.scaleBand()
-    .domain(["Men", "Women"])
-    .range([0, chartWidth])
-    .padding(0.4);
+  const x = d3.scaleBand().domain(["Men", "Women"]).range([0, chartWidth]).padding(0.4);
+  const y = d3.scaleLinear().domain([0, Math.max(selected.Male_Median, selected.Female_Median)]).nice().range([chartHeight, 0]);
 
-  const y = d3.scaleLinear()
-    .domain([0, Math.max(selected.Male_Median, selected.Female_Median)])
-    .nice()
-    .range([chartHeight, 0]);
-
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x));
-
+  g.append("g").attr("transform", `translate(0, ${chartHeight})`).call(d3.axisBottom(x));
   g.append("g").call(d3.axisLeft(y));
 
   const genderData = [
@@ -158,8 +141,8 @@ function drawDetailScene(data, industry) {
     .style("display", "inline")
     .on("click", () => {
       state.scene = "comparison";
-      window.scrollTo({ top: 0, behavior: "auto" });
       drawComparisonScene(data, industry);
+      window.scrollTo({ top: 0, behavior: "auto" });
     });
 }
 
@@ -172,8 +155,7 @@ function drawComparisonScene(data, industry) {
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = 400;
 
-  const g = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+  const g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const selected = data.find(d => d.Industry.trim() === industry.trim());
   const averageGap = d3.mean(data, d => d.Gap_Percent);
@@ -183,19 +165,10 @@ function drawComparisonScene(data, industry) {
     { label: "National Avg", value: averageGap }
   ];
 
-  const x = d3.scaleBand()
-    .domain(gapData.map(d => d.label))
-    .range([0, chartWidth])
-    .padding(0.4);
+  const x = d3.scaleBand().domain(gapData.map(d => d.label)).range([0, chartWidth]).padding(0.4);
+  const y = d3.scaleLinear().domain([0, d3.max(gapData, d => d.value)]).nice().range([chartHeight, 0]);
 
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(gapData, d => d.value)]).nice()
-    .range([chartHeight, 0]);
-
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x));
-
+  g.append("g").attr("transform", `translate(0, ${chartHeight})`).call(d3.axisBottom(x));
   g.append("g").call(d3.axisLeft(y));
 
   g.selectAll(".compareBar")
