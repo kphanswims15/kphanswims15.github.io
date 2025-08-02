@@ -3,25 +3,27 @@ body {
   padding: 0;
   font-family: sans-serif;
   background-color: #f9f9f9;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   overflow-y: scroll;
 }
 
 h2 {
-  margin-top: 20px;
+  margin: 20px 0 10px;
+  text-align: center;
 }
 
 #chart-container {
-  width: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  width: 100%;
   overflow-x: auto;
 }
 
 svg {
-  display: block;
   background-color: white;
+  display: block;
   margin: 0 auto;
 }
 
@@ -38,4 +40,5 @@ svg {
 .annotation {
   font-weight: bold;
   fill: red;
+  text-anchor: start;
 }
