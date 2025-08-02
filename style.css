@@ -10,7 +10,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
   padding-top: 20px;
 }
@@ -22,15 +21,14 @@ body {
 #chart-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  overflow-x: auto;
+  align-items: center;
   width: 100%;
+  padding-bottom: 40px;
 }
 
 svg {
   display: block;
   background-color: white;
-  margin: 0 auto;
 }
 
 .bar, .detailBar, .compareBar {

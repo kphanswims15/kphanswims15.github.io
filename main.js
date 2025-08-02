@@ -2,7 +2,7 @@ const svg = d3.select("#chart");
 const width = +svg.attr("width");
 let height = 1000;
 
-const margin = { top: 60, right: 40, bottom: 40, left: 300 };
+const margin = { top: 60, right: 40, bottom: 40, left: 100 };
 const state = {
   selectedIndustry: null,
   scene: "overview"
@@ -57,7 +57,6 @@ function drawOverview(data) {
     .range([0, chartWidth]);
 
   g.append("g").call(d3.axisLeft(y).tickSize(0)).selectAll("text").style("font-size", "11px");
-
   g.append("g")
     .attr("transform", `translate(0, ${chartHeight})`)
     .call(d3.axisBottom(x));
