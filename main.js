@@ -178,8 +178,8 @@ function drawComparisonScene(data, industry) {
   const averageGap = d3.mean(data, d => d.Gap_Percent);
 
   const gapData = [
-    { label: industry, value: selected.Gap_Percent },
-    { label: "National Avg", value: averageGap }
+    { value: selected.Gap_Percent },
+    { value: averageGap }
   ];
 
   const x = d3.scaleLinear()
