@@ -165,66 +165,90 @@ function drawDetailScene(data, industry) {
 function drawComparisonScene(data, industry) {
   state.scene = "comparison";
   svg.selectAll("*").remove();
-  svg.attr("height", 300);
+  svg.attr("height", 500);
 
-  const margin = { top: 80, right: 100, bottom: 60, left: 100 };
+  const selected = data.find(d => d.Industry.trim() === industry.trim());
+  const nationalAvgMale = d3.mean(data, d => d.Male_Median);
+  const nationalAvgFemale = d3.mean(data, d => d.Female_Median);
+
+  const gapData = [
+    {
+      label: "Your Industry",
+      male: selected.Male_Median,
+      female: selected.Female_Median
+    },
+    {
+      label: "National Average",
+      male: nationalAvgMale,
+      female: nationalAvgFemale
+    }
+  ];
+
+  const margin = { top: 60, right: 40, bottom: 60, left: 100 };
   const chartWidth = width - margin.left - margin.right;
-  const chartHeight = 100;
+  const chartHeight = 300;
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  const selected = data.find(d => d.Industry.trim() === industry.trim());
-  const averageGap = d3.mean(data, d => d.Gap_Percent);
-
-  const gapData = [
-    { value: selected.Gap_Percent },
-    { value: averageGap }
-  ];
-
   const x = d3.scaleLinear()
-    .domain([0, d3.max(gapData, d => d.value) * 1.2])
+    .domain([
+      0,
+      d3.max(gapData, d => Math.max(d.male, d.female))
+    ])
+    .nice()
     .range([0, chartWidth]);
 
-  // Y is constant since we have one horizontal dumbbell line
-  const centerY = chartHeight / 2;
+  const y = d3.scaleBand()
+    .domain(gapData.map(d => d.label))
+    .range([0, chartHeight])
+    .padding(0.5);
 
-  // Line between points
-  g.append("line")
-    .attr("x1", x(gapData[0].value))
-    .attr("x2", x(gapData[1].value))
-    .attr("y1", centerY)
-    .attr("y2", centerY)
-    .attr("stroke", "#aaa")
+  g.append("g")
+    .attr("transform", `translate(0,0)`)
+    .call(d3.axisLeft(y));
+
+  g.append("g")
+    .attr("transform", `translate(0,${chartHeight})`)
+    .call(d3.axisBottom(x));
+
+  // Dumbbell lines
+  g.selectAll(".line")
+    .data(gapData)
+    .enter()
+    .append("line")
+    .attr("x1", d => x(d.male))
+    .attr("x2", d => x(d.female))
+    .attr("y1", d => y(d.label) + y.bandwidth() / 2)
+    .attr("y2", d => y(d.label) + y.bandwidth() / 2)
+    .attr("stroke", "#999")
     .attr("stroke-width", 2);
 
-  // Circles for both points
-  g.selectAll("circle")
+  // Male circles
+  g.selectAll(".maleDot")
     .data(gapData)
     .enter()
     .append("circle")
-    .attr("cx", d => x(d.value))
-    .attr("cy", centerY)
-    .attr("r", 8)
-    .attr("fill", (d, i) => i === 0 ? "orange" : "gray");
+    .attr("cx", d => x(d.male))
+    .attr("cy", d => y(d.label) + y.bandwidth() / 2)
+    .attr("r", 6)
+    .attr("fill", "steelblue");
 
-  // Labels above each point
-  g.selectAll("text.labels")
+  // Female circles
+  g.selectAll(".femaleDot")
     .data(gapData)
     .enter()
-    .append("text")
-    .attr("class", "labels")
-    .attr("x", d => x(d.value))
-    .attr("y", centerY - 15)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "12px")
-    .text(d => `${d.label}: ${d.value.toFixed(1)}%`);
+    .append("circle")
+    .attr("cx", d => x(d.female))
+    .attr("cy", d => y(d.label) + y.bandwidth() / 2)
+    .attr("r", 6)
+    .attr("fill", "pink");
 
-  // Title
+  // Add axis labels
   svg.append("text")
     .attr("x", width / 2)
-    .attr("y", 40)
+    .attr("y", 30)
     .attr("text-anchor", "middle")
-    .attr("font-size", "20px")
-    .text(`${industry}: vs. National Gender Pay Gap Average`);
+    .attr("font-size", "22px")
+    .text(`${industry}: Weekly Pay vs. National Average`);
 }
