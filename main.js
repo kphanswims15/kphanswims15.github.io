@@ -165,11 +165,11 @@ function drawDetailScene(data, industry) {
 function drawComparisonScene(data, industry) {
   state.scene = "comparison";
   svg.selectAll("*").remove();
-  svg.attr("height", 500);
+  svg.attr("height", 300);
 
-  const margin = { top: 80, right: 40, bottom: 60, left: 80 };
+  const margin = { top: 80, right: 100, bottom: 60, left: 100 };
   const chartWidth = width - margin.left - margin.right;
-  const chartHeight = 300;
+  const chartHeight = 100;
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -183,52 +183,44 @@ function drawComparisonScene(data, industry) {
   ];
 
   const x = d3.scaleLinear()
-    .domain([0, d3.max(gapData, d => d.value) * 1.1])
+    .domain([0, d3.max(gapData, d => d.value) * 1.2])
     .range([0, chartWidth]);
 
-  const y = d3.scalePoint()
-    .domain(gapData.map(d => d.label))
-    .range([0, chartHeight])
-    .padding(0.5);
+  // Y is constant since we have one horizontal dumbbell line
+  const centerY = chartHeight / 2;
 
-  // Axis
-  g.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(d3.axisBottom(x));
-
-  g.append("g").call(d3.axisLeft(y));
-
-  // Dumbbell line
+  // Line between points
   g.append("line")
     .attr("x1", x(gapData[0].value))
     .attr("x2", x(gapData[1].value))
-    .attr("y1", y(gapData[0].label))
-    .attr("y2", y(gapData[1].label))
+    .attr("y1", centerY)
+    .attr("y2", centerY)
     .attr("stroke", "#aaa")
     .attr("stroke-width", 2);
 
-  // Circles
-  g.selectAll(".dot")
+  // Circles for both points
+  g.selectAll("circle")
     .data(gapData)
     .enter()
     .append("circle")
-    .attr("class", "dot")
     .attr("cx", d => x(d.value))
-    .attr("cy", d => y(d.label))
+    .attr("cy", centerY)
     .attr("r", 8)
     .attr("fill", (d, i) => i === 0 ? "orange" : "gray");
 
-  // Labels
-  g.selectAll(".dot-label")
+  // Labels above each point
+  g.selectAll("text.labels")
     .data(gapData)
     .enter()
     .append("text")
+    .attr("class", "labels")
     .attr("x", d => x(d.value))
-    .attr("y", d => y(d.label) - 12)
+    .attr("y", centerY - 15)
     .attr("text-anchor", "middle")
     .attr("font-size", "12px")
     .text(d => `${d.label}: ${d.value.toFixed(1)}%`);
 
+  // Title
   svg.append("text")
     .attr("x", width / 2)
     .attr("y", 40)
